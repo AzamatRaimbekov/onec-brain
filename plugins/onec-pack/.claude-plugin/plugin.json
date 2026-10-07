@@ -1,0 +1,21 @@
+{
+  "name": "onec-pack",
+  "version": "0.3.0",
+  "description": "Mdigital 1C:Enterprise 8.3 development brain: Configurator workflow, official 1C coding standards with a per-document digest of all of its.1c.ru/db/v8std, query language and performance, БСП 3.2.1 embedding recipes and API of all subsystems, integrations with the backend (HTTP services, real-time exchange), extensions over vendor configurations, with architect and reviewer agents.",
+  "author": {
+    "name": "Mdigital"
+  },
+  "repository": "https://github.com/AzamatRaimbekov/onec-brain",
+  "keywords": [
+    "1c",
+    "1с",
+    "bsl",
+    "1c-enterprise",
+    "configurator",
+    "bsp",
+    "v8std",
+    "ssl"
+  ],
+  "homepage": "https://azamatraimbekov.github.io/onec-brain/",
+  "license": "MIT"
+}

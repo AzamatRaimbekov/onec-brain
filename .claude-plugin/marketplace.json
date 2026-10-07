@@ -1,0 +1,30 @@
+{
+  "name": "onec-brain",
+  "owner": {
+    "name": "Azamat Raimbekov",
+    "url": "https://github.com/AzamatRaimbekov"
+  },
+  "metadata": {
+    "description": "Мозг 1С-разработки для Claude Code: стандарты 1С (v8std), БСП 3.2.1, запросы, интеграции, расширения.",
+    "version": "0.3.0"
+  },
+  "plugins": [
+    {
+      "name": "onec-pack",
+      "source": "./plugins/onec-pack",
+      "description": "Mdigital 1C:Enterprise 8.3 development brain: Configurator workflow, official 1C coding standards with a per-document digest of all of its.1c.ru/db/v8std, query language and performance, БСП 3.2.1 embedding recipes and API of all subsystems, integrations with the backend (HTTP services, real-time exchange), extensions over vendor configurations, with architect and reviewer agents.",
+      "version": "0.3.0",
+      "category": "development",
+      "keywords": [
+        "1c",
+        "1с",
+        "bsl",
+        "1c-enterprise",
+        "configurator",
+        "bsp",
+        "v8std",
+        "ssl"
+      ]
+    }
+  ]
+}
