@@ -69,7 +69,7 @@ npm test            # хук check-bsl, манифесты, целостност
 npm run check-bsl -- путь/к/выгрузке   # проверить выгруженную конфигурацию
 ```
 
-После правки скиллов: `npm test`, затем поднимите версию в `plugins/onec-pack/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` и `package.json` (тест проверяет, что они совпадают). Push в `main` запускает тесты и публикует сайт.
+После правки скиллов: поднимите версию в `plugins/onec-pack/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` и `package.json` (тест проверяет, что они совпадают), запустите `npm test` — он пересоберёт `site/data/brain.json` — и закоммитьте вместе с данными. GitHub Pages публикует сайт из ветки `main`.
 
 ## Источники и лицензии
 
