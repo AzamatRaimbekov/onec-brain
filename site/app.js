@@ -96,6 +96,7 @@
 
   function Panel({ data, nodes, sel, setSel, q, setQ, results }) {
     const count = (z) => nodes.filter((n) => n.zone === z).length;
+    const max = Math.max(...Object.keys(ZONES).map(count));
     const back = (label, to) => h('button', { key: 'back', className: 'back', onClick: () => setSel(to) }, '← ' + label);
     let body;
     if (q.trim()) {
@@ -105,17 +106,21 @@
         h('div', { key: 'e', className: 'eyebrow' }, `Плагин ${data.plugin.name} · v${data.plugin.version}`),
         h('h2', { key: 'h' }, 'Как устроен мозг'),
         h('p', { key: 'p' }, 'Каждая точка — стандарт из its.1c.ru/db/v8std или подсистема БСП. В центре, вокруг onec-core, лежит БСП: на ней стоят остальные зоны. Нажмите на точку или зону: справа откроется настоящий текст, по которому работает Claude.'),
-        h('div', { key: 'lg', className: 'legend' }, Object.entries(ZONES).map(([id, Z]) => h('button', { key: id, onClick: () => setSel({ type: 'zone', id }) },
-          h('span', { className: 'dot', style: { background: zoneColor(id) } }), Z.name, h('span', { className: 'c' }, count(id))))),
-        h('div', { key: 'sp', className: 'legend' }, Object.entries(SPECIAL).map(([id, S]) => h('button', { key: id, onClick: () => setSel({ type: 'special', id }) },
-          h('span', { className: 'dot', style: { background: 'var(--hub)', borderRadius: 2 } }), S.name))),
+        h('div', { key: 'z0', className: 'eyebrow' }, 'Зоны'),
+        h('div', { key: 'lg', className: 'legend' }, Object.entries(ZONES).sort((a, b) => count(b[0]) - count(a[0])).map(([id, Z]) => h('button', { key: id, onClick: () => setSel({ type: 'zone', id }) },
+          h('span', { className: 'dot', style: { background: zoneColor(id) } }), h('span', { className: 'nm' }, Z.name), h('span', { className: 'c' }, count(id)),
+          h('span', { className: 'bar', style: { width: `${count(id) / max * 100}%`, background: zoneColor(id) } })))),
+        h('div', { key: 's0', className: 'eyebrow' }, 'Агенты, хук и ваша база'),
+        h('div', { key: 'sp', className: 'legend specials' }, Object.entries(SPECIAL).map(([id, S]) => h('button', { key: id, onClick: () => setSel({ type: 'special', id }) },
+          h('span', { className: 'sq' }), h('span', { className: 'nm' }, S.name), h('span', { className: 'c' }, S.kind)))),
       ];
     } else if (sel.type === 'zone') {
       const Z = ZONES[sel.id], ids = nodes.map((n, i) => i).filter((i) => nodes[i].zone === sel.id);
       body = [back('Весь мозг', null),
-        h('div', { key: 'e', className: 'eyebrow' }, `${Z.anat} · ${ids.length} ${sel.id === 'bsp' ? 'подсистем' : 'стандартов'}`),
-        h('h2', { key: 'h', style: { color: zoneColor(sel.id) } }, Z.name), h('p', { key: 'p' }, Z.about),
-        h('span', { key: 'c', className: 'chip' }, 'скилл ', Z.skill),
+        h('div', { key: 'hd', className: 'zone-head', style: { '--z': zoneColor(sel.id) } },
+          h('div', { className: 'eyebrow' }, `${Z.anat} · ${ids.length} ${sel.id === 'bsp' ? 'подсистем' : 'стандартов'}`),
+          h('h2', null, Z.name), h('p', null, Z.about),
+          h('span', { className: 'chip' }, 'скилл ', Z.skill)),
         h('div', { key: 'r0', className: 'eyebrow' }, 'Главные правила'),
         h('ol', { key: 'r', className: 'rules' }, Z.rules.map((t, k) => h('li', { key: k }, t))),
         h('div', { key: 'l0', className: 'eyebrow' }, 'Всё в зоне'), h(NodeList, { key: 'l', ids, nodes, setSel })];
@@ -146,13 +151,13 @@
       return nodes.map((n, i) => i).filter((i) => [nodes[i].id, nodes[i].title, nodes[i].section, nodes[i].name, nodes[i].purpose].join(' ').toLowerCase().includes(t));
     }, [q, nodes]);
     const match = q.trim() ? new Set(results) : null;
-    const shown = hover != null ? hover : sel && sel.type === 'node' ? sel.id : null;
-    const n = shown != null ? nodes[shown] : null;
     return h('div', { className: 'grid' },
       h('section', { className: 'card stage' }, h(Brain, { nodes, sel, setSel, hover, setHover, match }),
-        h('div', { className: 'caption', 'aria-live': 'polite' }, n
-          ? [h('span', { key: 'c', className: 'code', style: { color: zoneColor(n.zone) } }, n.kind === 'bsp' ? 'БСП · ' + n.name : n.id), h('span', { key: 't' }, n.kind === 'bsp' ? n.purpose : n.title)]
-          : h('span', { className: 'hint' }, 'Наведите на точку, чтобы увидеть стандарт или подсистему. Нажмите на название зоны, чтобы открыть её правила.'))),
+        h('div', { className: 'caption', 'aria-live': 'polite' },
+          h('span', { className: 'key' }, h('span', { className: 'dot', style: { background: 'var(--muted)' } }), 'стандарт'),
+          h('span', { className: 'key' }, h('span', { className: 'dot ring' }), 'подсистема БСП'),
+          h('span', { className: 'key' }, h('span', { className: 'sq' }), 'агент, хук, база'),
+          h('span', { className: 'hint' }, q.trim() ? `Подсвечено: ${results.length}` : 'Наведите на точку, нажмите на зону — мозг приблизит её.'))),
       h(Panel, { data, nodes, sel, setSel, q, setQ, results }));
   }
 
@@ -160,11 +165,11 @@
     const items = [...data.skills.map((s) => ({ ...s, kind: 'скилл' })), ...data.agents.map((a) => ({ ...a, kind: 'агент' })),
       { name: 'check-bsl', kind: 'хук', description: SPECIAL.hook.about, path: 'plugins/onec-pack/scripts/check-bsl.mjs' }];
     const [cur, setCur] = useState(items.find((i) => i.name === 'onec-core') || items[0]);
-    const size = (r) => r && r.files ? ` · ${r.files} файлов справки, ${(r.bytes / 1048576).toFixed(1)} МБ` : '';
+    const size = (r) => r && r.files ? ` ${r.files} файлов справки, ${(r.bytes / 1048576).toFixed(1)} МБ` : '';
     return h('div', { className: 'split' },
       h('div', { className: 'cards', style: { gridTemplateColumns: 'minmax(0,1fr)' } }, items.map((s) => h('button', { key: s.name, 'aria-pressed': cur.name === s.name, onClick: () => setCur(s) },
-        h('span', { className: 'eyebrow' }, s.kind + size(s.references)), h('h3', null, s.name), h('p', null, s.description)))),
-      h('div', { className: 'card page' }, h('div', { className: 'eyebrow' }, cur.path),
+        h('span', { className: 'eyebrow' }, h('span', { className: 'badge k-' + s.kind }, s.kind), size(s.references)), h('h3', null, s.name), h('p', null, s.description)))),
+      h('div', { className: 'card page' },
         h(FileDetail, { key: cur.path, path: cur.path })));
   }
 
@@ -187,7 +192,7 @@
       h('p', { className: 'hint' }, `Данные собраны ${data.builtAt}.`));
   }
 
-  const TABS = [['', 'Мозг'], ['skills', 'Скиллы'], ['sources', 'Источники и установка']];
+  const TABS = [['', 'Мозг'], ['skills', 'Скиллы'], ['sources', 'Установка и источники']];
   function App({ data }) {
     const nodes = useMemo(() => [
       ...data.std.map((s) => ({ ...s, kind: 'std' })),
@@ -198,10 +203,17 @@
     const c = data.counts;
     return h(React.Fragment, null,
       h('header', { className: 'top' },
-        h('div', null, h('h1', null, 'Мозг 1С'), h('p', null, 'Плагин onec-pack для Claude Code: стандарты разработки 1С, Библиотека стандартных подсистем, скиллы и агенты для работы в Конфигураторе.')),
-        h('div', { className: 'stats' }, [[c.standards, 'стандартов'], [c.bspSubsystems, 'подсистем БСП'], [c.bspMethods, 'методов API'], [c.skills, 'скиллов'], [c.agents, 'агента'], ['v' + data.plugin.version, 'плагин']]
-          .map(([b, s]) => h('div', { key: s, className: 'stat' }, h('b', null, b), h('span', null, s))))),
-      h('nav', { className: 'tabs' }, TABS.map(([id, label]) => h('a', { key: id, href: '#' + id, 'aria-current': tab === id ? 'page' : undefined }, label))),
+        h('div', { className: 'brand' },
+          h('svg', { className: 'logo', viewBox: '0 0 40 40', 'aria-hidden': true },
+            h('path', { d: 'M8 24 C3 18 6 8 15 6 C22 3 32 6 35 15 C37 22 32 27 26 27 C22 28 20 33 14 32 C10 31 9 27 8 24Z', fill: 'none', stroke: 'currentColor', strokeWidth: 2.4, strokeLinejoin: 'round' }),
+            h('circle', { cx: 20, cy: 17, r: 3.4, fill: 'var(--l-bsp)' }), h('circle', { cx: 12, cy: 14, r: 2, fill: 'var(--l-code)' }),
+            h('circle', { cx: 28, cy: 13, r: 2, fill: 'var(--l-ui)' }), h('circle', { cx: 15, cy: 23, r: 2, fill: 'var(--l-queries)' })),
+          h('div', null, h('h1', null, 'Мозг 1С'), h('p', null, 'Плагин onec-pack для Claude Code: стандарты 1С, БСП, скиллы и агенты для Конфигуратора.'))),
+        h('nav', { className: 'tabs' }, TABS.map(([id, label]) => h('a', { key: id, href: '#' + id, 'aria-current': tab === id ? 'page' : undefined }, label))),
+        h('a', { className: 'gh', href: REPO, target: '_blank', rel: 'noopener' }, 'GitHub ↗')),
+      h('div', { className: 'stats' }, [[c.standards, 'стандартов 1С', 'meta'], [c.bspSubsystems, 'подсистем БСП', 'bsp'], [c.bspMethods, 'методов API', 'queries'],
+        [c.skills, 'скиллов', 'ui'], [c.agents, 'агента', 'sec'], ['v' + data.plugin.version, 'версия плагина', 'code']]
+        .map(([b, s, z]) => h('div', { key: s, className: 'stat', style: { '--z': zoneColor(z) } }, h('b', null, b), h('span', null, s)))),
       tab === 'skills' ? h(SkillsTab, { data }) : tab === 'sources' ? h(SourcesTab, { data }) : h(BrainTab, { data, nodes }),
       h('p', { className: 'foot' }, 'Источники: its.1c.ru/db/v8std (пересказ со ссылками) и исходный код БСП 3.2.1.541 (© 1С-Софт, CC BY 4.0). ', h('a', { href: REPO }, 'GitHub')));
   }
